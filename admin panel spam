@@ -1,0 +1,1304 @@
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "WubsyHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Settings state (auto-enabled commands) - Load from storage if available
+local settings = {
+	balloon = true,
+	rocket = true,
+	morph = true,
+	jumpscare = true,
+	inverse = true,
+	ragdoll = false,
+	nightvision = false,
+	jail = false,
+	control = false,
+	tiny = false,
+	targetESP = true
+}
+
+-- DataStore-like saving using writefile (if available)
+local HttpService = game:GetService("HttpService")
+local saveFileName = "WubsyHubConfig.json"
+
+-- Load saved settings
+local function loadSettings()
+	pcall(function()
+		if readfile then
+			local data = HttpService:JSONDecode(readfile(saveFileName))
+			for k, v in pairs(data.settings or {}) do
+				if settings[k] ~= nil then
+					settings[k] = v
+				end
+			end
+			return data
+		end
+	end)
+	return {}
+end
+
+-- Function to save settings
+local function saveSettings()
+	pcall(function()
+		if writefile then
+			local data = loadSettings()
+			data.settings = settings
+			writefile(saveFileName, HttpService:JSONEncode(data))
+		end
+	end)
+end
+
+local savedData = loadSettings()
+
+-- Main Frame with ultra-clean glassmorphism
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 330, 0, 420)
+MainFrame.Position = UDim2.new(0.5, -165, 0.5, -210)
+MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MainFrame.BackgroundTransparency = 0.90
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 18)
+MainCorner.Parent = MainFrame
+
+-- Outer glow/border for depth
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(255, 255, 255)
+MainStroke.Thickness = 1.2
+MainStroke.Transparency = 0.72
+MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+MainStroke.Parent = MainFrame
+
+-- Inner highlight for premium bulge effect
+local InnerHighlight = Instance.new("Frame")
+InnerHighlight.Size = UDim2.new(1, -1.5, 1, -1.5)
+InnerHighlight.Position = UDim2.new(0, 0.75, 0, 0.75)
+InnerHighlight.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+InnerHighlight.BackgroundTransparency = 0.94
+InnerHighlight.BorderSizePixel = 0
+InnerHighlight.ZIndex = 0
+InnerHighlight.Parent = MainFrame
+
+local InnerCorner = Instance.new("UICorner")
+InnerCorner.CornerRadius = UDim.new(0, 17)
+InnerCorner.Parent = InnerHighlight
+
+local InnerStroke = Instance.new("UIStroke")
+InnerStroke.Color = Color3.fromRGB(255, 255, 255)
+InnerStroke.Thickness = 0.4
+InnerStroke.Transparency = 0.88
+InnerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+InnerStroke.Parent = InnerHighlight
+
+-- Subtle gradient overlay for depth
+local GradientOverlay = Instance.new("Frame")
+GradientOverlay.Size = UDim2.new(1, 0, 1, 0)
+GradientOverlay.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+GradientOverlay.BackgroundTransparency = 0.96
+GradientOverlay.BorderSizePixel = 0
+GradientOverlay.ZIndex = 1
+GradientOverlay.Parent = MainFrame
+
+local GradCorner = Instance.new("UICorner")
+GradCorner.CornerRadius = UDim.new(0, 18)
+GradCorner.Parent = GradientOverlay
+
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(245, 250, 255))
+}
+Gradient.Rotation = 145
+Gradient.Transparency = NumberSequence.new{
+	NumberSequenceKeypoint.new(0, 0.75),
+	NumberSequenceKeypoint.new(0.5, 0.88),
+	NumberSequenceKeypoint.new(1, 0.75)
+}
+Gradient.Parent = GradientOverlay
+
+-- Header Frame
+local HeaderFrame = Instance.new("Frame")
+HeaderFrame.Name = "Header"
+HeaderFrame.Size = UDim2.new(1, -20, 0, 54)
+HeaderFrame.Position = UDim2.new(0, 10, 0, 10)
+HeaderFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+HeaderFrame.BackgroundTransparency = 0.93
+HeaderFrame.BorderSizePixel = 0
+HeaderFrame.ZIndex = 2
+HeaderFrame.Parent = MainFrame
+
+local HeaderCorner = Instance.new("UICorner")
+HeaderCorner.CornerRadius = UDim.new(0, 14)
+HeaderCorner.Parent = HeaderFrame
+
+local HeaderStroke = Instance.new("UIStroke")
+HeaderStroke.Color = Color3.fromRGB(255, 255, 255)
+HeaderStroke.Thickness = 0.8
+HeaderStroke.Transparency = 0.82
+HeaderStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+HeaderStroke.Parent = HeaderFrame
+
+local HeaderInner = Instance.new("UIStroke")
+HeaderInner.Color = Color3.fromRGB(255, 255, 255)
+HeaderInner.Thickness = 0.3
+HeaderInner.Transparency = 0.90
+HeaderInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+HeaderInner.Parent = HeaderFrame
+
+-- Title Label
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "Title"
+TitleLabel.Size = UDim2.new(1, -90, 0, 20)
+TitleLabel.Position = UDim2.new(0, 16, 0, 11)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "Wubsy Hub"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 16
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.TextTransparency = 0.02
+TitleLabel.ZIndex = 3
+TitleLabel.Parent = HeaderFrame
+
+-- Subtitle Label
+local SubtitleLabel = Instance.new("TextLabel")
+SubtitleLabel.Name = "Subtitle"
+SubtitleLabel.Size = UDim2.new(1, -90, 0, 14)
+SubtitleLabel.Position = UDim2.new(0, 16, 0, 33)
+SubtitleLabel.BackgroundTransparency = 1
+SubtitleLabel.Text = "admin spammer"
+SubtitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubtitleLabel.TextSize = 9.5
+SubtitleLabel.Font = Enum.Font.Gotham
+SubtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+SubtitleLabel.TextTransparency = 0.42
+SubtitleLabel.ZIndex = 3
+SubtitleLabel.Parent = HeaderFrame
+
+-- Settings Button
+local SettingsButton = Instance.new("TextButton")
+SettingsButton.Name = "SettingsButton"
+SettingsButton.Size = UDim2.new(0, 32, 0, 32)
+SettingsButton.Position = UDim2.new(1, -74, 0, 11)
+SettingsButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SettingsButton.BackgroundTransparency = 0.91
+SettingsButton.BorderSizePixel = 0
+SettingsButton.Text = "⚙"
+SettingsButton.TextSize = 15
+SettingsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SettingsButton.TextTransparency = 0.18
+SettingsButton.ZIndex = 3
+SettingsButton.Parent = HeaderFrame
+
+local SettingsCorner = Instance.new("UICorner")
+SettingsCorner.CornerRadius = UDim.new(0, 11)
+SettingsCorner.Parent = SettingsButton
+
+local SettingsStroke = Instance.new("UIStroke")
+SettingsStroke.Color = Color3.fromRGB(255, 255, 255)
+SettingsStroke.Thickness = 0.8
+SettingsStroke.Transparency = 0.77
+SettingsStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+SettingsStroke.Parent = SettingsButton
+
+local SettingsInner = Instance.new("UIStroke")
+SettingsInner.Color = Color3.fromRGB(255, 255, 255)
+SettingsInner.Thickness = 0.3
+SettingsInner.Transparency = 0.90
+SettingsInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+SettingsInner.Parent = SettingsButton
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 32, 0, 32)
+CloseButton.Position = UDim2.new(1, -36, 0, 11)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 105, 105)
+CloseButton.BackgroundTransparency = 0.78
+CloseButton.BorderSizePixel = 0
+CloseButton.Text = "×"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 19
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextTransparency = 0.02
+CloseButton.ZIndex = 3
+CloseButton.Parent = HeaderFrame
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 11)
+CloseCorner.Parent = CloseButton
+
+local CloseStroke = Instance.new("UIStroke")
+CloseStroke.Color = Color3.fromRGB(255, 160, 160)
+CloseStroke.Thickness = 0.8
+CloseStroke.Transparency = 0.62
+CloseStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+CloseStroke.Parent = CloseButton
+
+local CloseInner = Instance.new("UIStroke")
+CloseInner.Color = Color3.fromRGB(255, 210, 210)
+CloseInner.Thickness = 0.3
+CloseInner.Transparency = 0.82
+CloseInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+CloseInner.Parent = CloseButton
+
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+CloseButton.MouseEnter:Connect(function()
+	CloseButton.BackgroundTransparency = 0.64
+	CloseStroke.Transparency = 0.45
+	CloseInner.Transparency = 0.70
+end)
+
+CloseButton.MouseLeave:Connect(function()
+	CloseButton.BackgroundTransparency = 0.78
+	CloseStroke.Transparency = 0.62
+	CloseInner.Transparency = 0.82
+end)
+
+-- Settings Panel
+local SettingsPanel = Instance.new("Frame")
+SettingsPanel.Name = "SettingsPanel"
+SettingsPanel.Size = UDim2.new(1, -36, 1, -131)
+SettingsPanel.Position = UDim2.new(0, 18, 0, 72)
+SettingsPanel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SettingsPanel.BackgroundTransparency = 0.95
+SettingsPanel.BorderSizePixel = 0
+SettingsPanel.Visible = false
+SettingsPanel.ZIndex = 2
+SettingsPanel.Parent = MainFrame
+
+local SettingsPanelCorner = Instance.new("UICorner")
+SettingsPanelCorner.CornerRadius = UDim.new(0, 14)
+SettingsPanelCorner.Parent = SettingsPanel
+
+local SettingsPanelStroke = Instance.new("UIStroke")
+SettingsPanelStroke.Color = Color3.fromRGB(255, 255, 255)
+SettingsPanelStroke.Thickness = 0.8
+SettingsPanelStroke.Transparency = 0.86
+SettingsPanelStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+SettingsPanelStroke.Parent = SettingsPanel
+
+local SettingsPanelInner = Instance.new("UIStroke")
+SettingsPanelInner.Color = Color3.fromRGB(255, 255, 255)
+SettingsPanelInner.Thickness = 0.3
+SettingsPanelInner.Transparency = 0.92
+SettingsPanelInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+SettingsPanelInner.Parent = SettingsPanel
+
+local SettingsScroll = Instance.new("ScrollingFrame")
+SettingsScroll.Size = UDim2.new(1, -22, 1, -22)
+SettingsScroll.Position = UDim2.new(0, 11, 0, 11)
+SettingsScroll.BackgroundTransparency = 1
+SettingsScroll.BorderSizePixel = 0
+SettingsScroll.ScrollBarThickness = 1.5
+SettingsScroll.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
+SettingsScroll.ScrollBarImageTransparency = 0.65
+SettingsScroll.ZIndex = 3
+SettingsScroll.Parent = SettingsPanel
+
+local SettingsLayout = Instance.new("UIListLayout")
+SettingsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SettingsLayout.Padding = UDim.new(0, 5)
+SettingsLayout.Parent = SettingsScroll
+
+-- Player List Panel
+local PlayerPanel = Instance.new("Frame")
+PlayerPanel.Name = "PlayerPanel"
+PlayerPanel.Size = UDim2.new(1, -36, 1, -131)
+PlayerPanel.Position = UDim2.new(0, 18, 0, 72)
+PlayerPanel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+PlayerPanel.BackgroundTransparency = 0.95
+PlayerPanel.BorderSizePixel = 0
+PlayerPanel.Visible = true
+PlayerPanel.ZIndex = 2
+PlayerPanel.Parent = MainFrame
+
+local PlayerPanelCorner = Instance.new("UICorner")
+PlayerPanelCorner.CornerRadius = UDim.new(0, 14)
+PlayerPanelCorner.Parent = PlayerPanel
+
+local PlayerPanelStroke = Instance.new("UIStroke")
+PlayerPanelStroke.Color = Color3.fromRGB(255, 255, 255)
+PlayerPanelStroke.Thickness = 0.8
+PlayerPanelStroke.Transparency = 0.86
+PlayerPanelStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+PlayerPanelStroke.Parent = PlayerPanel
+
+local PlayerPanelInner = Instance.new("UIStroke")
+PlayerPanelInner.Color = Color3.fromRGB(255, 255, 255)
+PlayerPanelInner.Thickness = 0.3
+PlayerPanelInner.Transparency = 0.92
+PlayerPanelInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+PlayerPanelInner.Parent = PlayerPanel
+
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Name = "PlayerList"
+ScrollFrame.Size = UDim2.new(1, -22, 1, -22)
+ScrollFrame.Position = UDim2.new(0, 11, 0, 11)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.ScrollBarThickness = 1.5
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
+ScrollFrame.ScrollBarImageTransparency = 0.65
+ScrollFrame.ZIndex = 3
+ScrollFrame.Parent = PlayerPanel
+
+local ListLayout = Instance.new("UIListLayout")
+ListLayout.SortOrder = Enum.SortOrder.Name
+ListLayout.Padding = UDim.new(0, 5)
+ListLayout.Parent = ScrollFrame
+
+-- Keybind Frame at bottom
+local KeybindFrame = Instance.new("Frame")
+KeybindFrame.Name = "KeybindFrame"
+KeybindFrame.Size = UDim2.new(1, -36, 0, 38)
+KeybindFrame.Position = UDim2.new(0, 18, 1, -53)
+KeybindFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+KeybindFrame.BackgroundTransparency = 0.93
+KeybindFrame.BorderSizePixel = 0
+KeybindFrame.ZIndex = 2
+KeybindFrame.Parent = MainFrame
+
+local KeybindCorner = Instance.new("UICorner")
+KeybindCorner.CornerRadius = UDim.new(0, 12)
+KeybindCorner.Parent = KeybindFrame
+
+local KeybindStroke = Instance.new("UIStroke")
+KeybindStroke.Color = Color3.fromRGB(255, 255, 255)
+KeybindStroke.Thickness = 0.8
+KeybindStroke.Transparency = 0.82
+KeybindStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+KeybindStroke.Parent = KeybindFrame
+
+local KeybindInner = Instance.new("UIStroke")
+KeybindInner.Color = Color3.fromRGB(255, 255, 255)
+KeybindInner.Thickness = 0.3
+KeybindInner.Transparency = 0.90
+KeybindInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+KeybindInner.Parent = KeybindFrame
+
+local KeybindLabel = Instance.new("TextLabel")
+KeybindLabel.Size = UDim2.new(0, 115, 1, 0)
+KeybindLabel.Position = UDim2.new(0, 13, 0, 0)
+KeybindLabel.BackgroundTransparency = 1
+KeybindLabel.Text = "Button to auto admin panel:"
+KeybindLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeybindLabel.TextSize = 11
+KeybindLabel.Font = Enum.Font.GothamMedium
+KeybindLabel.TextXAlignment = Enum.TextXAlignment.Left
+KeybindLabel.TextTransparency = 0.12
+KeybindLabel.ZIndex = 3
+KeybindLabel.Parent = KeybindFrame
+
+local KeybindButton = Instance.new("TextButton")
+KeybindButton.Size = UDim2.new(0, 60, 0, 20)
+KeybindButton.Position = UDim2.new(1, -70, 0.5, -10)
+KeybindButton.BackgroundColor3 = Color3.fromRGB(210, 210, 220)
+KeybindButton.BackgroundTransparency = 0.58
+KeybindButton.BorderSizePixel = 0
+KeybindButton.Text = "None"
+KeybindButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeybindButton.TextSize = 9
+KeybindButton.Font = Enum.Font.GothamBold
+KeybindButton.TextTransparency = 0.08
+KeybindButton.ZIndex = 3
+KeybindButton.Parent = KeybindFrame
+
+local KeybindButtonCorner = Instance.new("UICorner")
+KeybindButtonCorner.CornerRadius = UDim.new(0, 8)
+KeybindButtonCorner.Parent = KeybindButton
+
+local KeybindButtonStroke = Instance.new("UIStroke")
+KeybindButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+KeybindButtonStroke.Thickness = 0.6
+KeybindButtonStroke.Transparency = 0.72
+KeybindButtonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+KeybindButtonStroke.Parent = KeybindButton
+
+local KeybindButtonInner = Instance.new("UIStroke")
+KeybindButtonInner.Color = Color3.fromRGB(255, 255, 255)
+KeybindButtonInner.Thickness = 0.3
+KeybindButtonInner.Transparency = 0.87
+KeybindButtonInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+KeybindButtonInner.Parent = KeybindButton
+
+-- Function to get closest player
+local function getClosestPlayer()
+	local localPlayer = game.Players.LocalPlayer
+	local character = localPlayer.Character
+	if not character or not character:FindFirstChild("HumanoidRootPart") then
+		return nil
+	end
+
+	local rootPart = character.HumanoidRootPart
+	local closestPlayer = nil
+	local shortestDistance = math.huge
+
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local distance = (rootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+			if distance < shortestDistance then
+				shortestDistance = distance
+				closestPlayer = player
+			end
+		end
+	end
+
+	return closestPlayer
+end
+
+-- Cooldown variables (must be declared before keybind functionality)
+local lastExecutionTime = 0
+local cooldownTime = 1 -- 1 second cooldown
+
+-- Keybind functionality
+local toggleKeybind = nil
+local isBindingToggle = false
+
+-- Load saved toggle keybind from file
+if savedData.closestKey then
+	toggleKeybind = Enum.KeyCode[savedData.closestKey]
+	KeybindButton.Text = savedData.closestKey
+end
+
+KeybindButton.MouseButton1Click:Connect(function()
+	if isBindingToggle then return end
+	isBindingToggle = true
+
+	KeybindButton.Text = "Press Key..."
+	KeybindButton.BackgroundColor3 = Color3.fromRGB(150, 225, 190)
+	KeybindButton.BackgroundTransparency = 0.48
+
+	local connection
+	connection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+		if input.UserInputType == Enum.UserInputType.Keyboard then
+			toggleKeybind = input.KeyCode
+			KeybindButton.Text = input.KeyCode.Name
+			KeybindButton.BackgroundColor3 = Color3.fromRGB(210, 210, 220)
+			KeybindButton.BackgroundTransparency = 0.58
+			connection:Disconnect()
+
+			-- Save keybind to file
+			pcall(function()
+				if writefile then
+					local data = loadSettings()
+					data.closestKey = input.KeyCode.Name
+					writefile(saveFileName, HttpService:JSONEncode(data))
+				end
+			end)
+
+			-- Set cooldown to prevent immediate execution
+			lastExecutionTime = tick()
+
+			-- Reset binding flag after short delay
+			task.wait(0.1)
+			isBindingToggle = false
+		end
+	end)
+end)
+
+KeybindButton.MouseEnter:Connect(function()
+	if not isBindingToggle then
+		KeybindButton.BackgroundTransparency = 0.48
+		KeybindButtonStroke.Transparency = 0.58
+		KeybindButtonInner.Transparency = 0.75
+	end
+end)
+
+KeybindButton.MouseLeave:Connect(function()
+	if not isBindingToggle then
+		KeybindButton.BackgroundTransparency = 0.58
+		KeybindButtonStroke.Transparency = 0.72
+		KeybindButtonInner.Transparency = 0.87
+	end
+end)
+
+-- Auto admin panel keybind - Executes commands on closest player
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if isBindingToggle then return end -- Don't execute while binding
+	if toggleKeybind and input.KeyCode == toggleKeybind then
+		-- Check cooldown
+		local currentTime = tick()
+		if currentTime - lastExecutionTime < cooldownTime then
+			print("Cooldown active, please wait...")
+			return
+		end
+
+		local closestPlayer = getClosestPlayer()
+		if closestPlayer then
+			print("Executing commands on closest player:", closestPlayer.Name)
+			lastExecutionTime = currentTime
+
+			local commands = {
+				{name = "balloon", arg = "balloon"},
+				{name = "rocket", arg = "rocket"},
+				{name = "morph", arg = "morph"},
+				{name = "jumpscare", arg = "jumpscare"},
+				{name = "inverse", arg = "inverse"},
+				{name = "ragdoll", arg = "ragdoll"},
+				{name = "nightvision", arg = "nightvision"},
+				{name = "jail", arg = "jail"},
+				{name = "control", arg = "control"},
+				{name = "tiny", arg = "tiny"}
+			}
+
+			for _, cmd in ipairs(commands) do
+				if settings[cmd.name] then
+					local args = {
+						"78a772b6-9e1c-4827-ab8b-04a07838f298",
+						closestPlayer,
+						cmd.arg
+					}
+					game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RE/352aad58-c786-4998-886b-3e4fa390721e"):FireServer(unpack(args))
+					wait(0.1)
+				end
+			end
+		else
+			print("No closest player found")
+		end
+	end
+end)
+
+-- Function to create settings toggle
+local function createSettingToggle(name, displayName, order)
+	local Toggle = Instance.new("Frame")
+	Toggle.Name = name
+	Toggle.Size = UDim2.new(1, 0, 0, 34)
+	Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Toggle.BackgroundTransparency = 0.93
+	Toggle.BorderSizePixel = 0
+	Toggle.LayoutOrder = order
+	Toggle.ZIndex = 4
+	Toggle.Parent = SettingsScroll
+	
+	local ToggleCorner = Instance.new("UICorner")
+	ToggleCorner.CornerRadius = UDim.new(0, 11)
+	ToggleCorner.Parent = Toggle
+	
+	local ToggleStroke = Instance.new("UIStroke")
+	ToggleStroke.Color = Color3.fromRGB(255, 255, 255)
+	ToggleStroke.Thickness = 0.7
+	ToggleStroke.Transparency = 0.84
+	ToggleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ToggleStroke.Parent = Toggle
+	
+	local ToggleInner = Instance.new("UIStroke")
+	ToggleInner.Color = Color3.fromRGB(255, 255, 255)
+	ToggleInner.Thickness = 0.3
+	ToggleInner.Transparency = 0.92
+	ToggleInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	ToggleInner.Parent = Toggle
+	
+	local Label = Instance.new("TextLabel")
+	Label.Size = UDim2.new(1, -82, 1, 0)
+	Label.Position = UDim2.new(0, 13, 0, 0)
+	Label.BackgroundTransparency = 1
+	Label.Text = displayName
+	Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Label.TextSize = 11.5
+	Label.Font = Enum.Font.GothamMedium
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	Label.TextTransparency = 0.12
+	Label.ZIndex = 5
+	Label.Parent = Toggle
+	
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(0, 44, 0, 20)
+	Button.Position = UDim2.new(1, -54, 0.5, -10)
+	Button.BackgroundColor3 = settings[name] and Color3.fromRGB(150, 225, 190) or Color3.fromRGB(210, 210, 220)
+	Button.BackgroundTransparency = settings[name] and 0.48 or 0.58
+	Button.BorderSizePixel = 0
+	Button.Text = settings[name] and "ON" or "OFF"
+	Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Button.TextSize = 8.5
+	Button.Font = Enum.Font.GothamBold
+	Button.TextTransparency = 0.08
+	Button.ZIndex = 5
+	Button.Parent = Toggle
+	
+	local ButtonCorner = Instance.new("UICorner")
+	ButtonCorner.CornerRadius = UDim.new(0, 8)
+	ButtonCorner.Parent = Button
+	
+	local ButtonStroke = Instance.new("UIStroke")
+	ButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+	ButtonStroke.Thickness = 0.6
+	ButtonStroke.Transparency = 0.72
+	ButtonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ButtonStroke.Parent = Button
+	
+	local ButtonInner = Instance.new("UIStroke")
+	ButtonInner.Color = Color3.fromRGB(255, 255, 255)
+	ButtonInner.Thickness = 0.3
+	ButtonInner.Transparency = 0.87
+	ButtonInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	ButtonInner.Parent = Button
+	
+	Button.MouseButton1Click:Connect(function()
+		settings[name] = not settings[name]
+		Button.Text = settings[name] and "ON" or "OFF"
+		Button.BackgroundColor3 = settings[name] and Color3.fromRGB(150, 225, 190) or Color3.fromRGB(210, 210, 220)
+		Button.BackgroundTransparency = settings[name] and 0.48 or 0.58
+		saveSettings()
+	end)
+	
+	Button.MouseEnter:Connect(function()
+		Button.BackgroundTransparency = settings[name] and 0.38 or 0.48
+		ButtonStroke.Transparency = 0.58
+		ButtonInner.Transparency = 0.75
+	end)
+	
+	Button.MouseLeave:Connect(function()
+		Button.BackgroundTransparency = settings[name] and 0.48 or 0.58
+		ButtonStroke.Transparency = 0.72
+		ButtonInner.Transparency = 0.87
+	end)
+end
+
+-- Create all setting toggles
+createSettingToggle("balloon", "Balloon", 1)
+createSettingToggle("rocket", "Rocket", 2)
+createSettingToggle("morph", "Morph", 3)
+createSettingToggle("jumpscare", "Jumpscare", 4)
+createSettingToggle("inverse", "Inverse", 5)
+createSettingToggle("ragdoll", "Ragdoll", 6)
+createSettingToggle("nightvision", "Nightvision", 7)
+createSettingToggle("jail", "Jail", 8)
+createSettingToggle("control", "Control", 9)
+createSettingToggle("tiny", "Tiny", 10)
+createSettingToggle("targetESP", "Target ESP", 11)
+
+-- Keybind section in settings
+local KeybindSeparator = Instance.new("Frame")
+KeybindSeparator.Name = "Separator"
+KeybindSeparator.Size = UDim2.new(1, 0, 0, 10)
+KeybindSeparator.BackgroundTransparency = 1
+KeybindSeparator.LayoutOrder = 12
+KeybindSeparator.Parent = SettingsScroll
+
+local KeybindToggle = Instance.new("Frame")
+KeybindToggle.Name = "KeybindToggle"
+KeybindToggle.Size = UDim2.new(1, 0, 0, 34)
+KeybindToggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+KeybindToggle.BackgroundTransparency = 0.93
+KeybindToggle.BorderSizePixel = 0
+KeybindToggle.LayoutOrder = 13
+KeybindToggle.ZIndex = 4
+KeybindToggle.Parent = SettingsScroll
+
+local KeybindToggleCorner = Instance.new("UICorner")
+KeybindToggleCorner.CornerRadius = UDim.new(0, 11)
+KeybindToggleCorner.Parent = KeybindToggle
+
+local KeybindToggleStroke = Instance.new("UIStroke")
+KeybindToggleStroke.Color = Color3.fromRGB(255, 255, 255)
+KeybindToggleStroke.Thickness = 0.7
+KeybindToggleStroke.Transparency = 0.84
+KeybindToggleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+KeybindToggleStroke.Parent = KeybindToggle
+
+local KeybindToggleInner = Instance.new("UIStroke")
+KeybindToggleInner.Color = Color3.fromRGB(255, 255, 255)
+KeybindToggleInner.Thickness = 0.3
+KeybindToggleInner.Transparency = 0.92
+KeybindToggleInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+KeybindToggleInner.Parent = KeybindToggle
+
+local ToggleUILabel = Instance.new("TextLabel")
+ToggleUILabel.Size = UDim2.new(1, -140, 1, 0)
+ToggleUILabel.Position = UDim2.new(0, 13, 0, 0)
+ToggleUILabel.BackgroundTransparency = 1
+ToggleUILabel.Text = "Toggle UI"
+ToggleUILabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleUILabel.TextSize = 11.5
+ToggleUILabel.Font = Enum.Font.GothamMedium
+ToggleUILabel.TextXAlignment = Enum.TextXAlignment.Left
+ToggleUILabel.TextTransparency = 0.12
+ToggleUILabel.ZIndex = 5
+ToggleUILabel.Parent = KeybindToggle
+
+local ToggleUIButton = Instance.new("TextButton")
+ToggleUIButton.Size = UDim2.new(0, 70, 0, 20)
+ToggleUIButton.Position = UDim2.new(1, -80, 0.5, -10)
+ToggleUIButton.BackgroundColor3 = Color3.fromRGB(210, 210, 220)
+ToggleUIButton.BackgroundTransparency = 0.58
+ToggleUIButton.BorderSizePixel = 0
+ToggleUIButton.Text = "None"
+ToggleUIButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleUIButton.TextSize = 8.5
+ToggleUIButton.Font = Enum.Font.GothamBold
+ToggleUIButton.TextTransparency = 0.08
+ToggleUIButton.ZIndex = 5
+ToggleUIButton.Parent = KeybindToggle
+
+local ToggleUIButtonCorner = Instance.new("UICorner")
+ToggleUIButtonCorner.CornerRadius = UDim.new(0, 8)
+ToggleUIButtonCorner.Parent = ToggleUIButton
+
+local ToggleUIButtonStroke = Instance.new("UIStroke")
+ToggleUIButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+ToggleUIButtonStroke.Thickness = 0.6
+ToggleUIButtonStroke.Transparency = 0.72
+ToggleUIButtonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+ToggleUIButtonStroke.Parent = ToggleUIButton
+
+local ToggleUIButtonInner = Instance.new("UIStroke")
+ToggleUIButtonInner.Color = Color3.fromRGB(255, 255, 255)
+ToggleUIButtonInner.Thickness = 0.3
+ToggleUIButtonInner.Transparency = 0.87
+ToggleUIButtonInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+ToggleUIButtonInner.Parent = ToggleUIButton
+
+-- Keybind functionality for Toggle UI
+local currentKeybind = nil
+local isBinding = false
+
+-- Load saved keybind
+pcall(function()
+	local saved = game:GetService("Players").LocalPlayer:GetAttribute("WubsyHubToggleKey")
+	if saved then
+		currentKeybind = Enum.KeyCode[saved]
+		ToggleUIButton.Text = saved
+	end
+end)
+
+ToggleUIButton.MouseButton1Click:Connect(function()
+	if isBinding then return end
+	isBinding = true
+	ToggleUIButton.Text = "Press..."
+	ToggleUIButton.BackgroundColor3 = Color3.fromRGB(150, 225, 190)
+	ToggleUIButton.BackgroundTransparency = 0.48
+
+	local connection
+	connection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+		if input.UserInputType == Enum.UserInputType.Keyboard then
+			currentKeybind = input.KeyCode
+			ToggleUIButton.Text = input.KeyCode.Name
+			ToggleUIButton.BackgroundColor3 = Color3.fromRGB(210, 210, 220)
+			ToggleUIButton.BackgroundTransparency = 0.58
+			connection:Disconnect()
+			-- Save keybind
+			pcall(function()
+				game:GetService("Players").LocalPlayer:SetAttribute("WubsyHubToggleKey", input.KeyCode.Name)
+			end)
+
+			-- Delay resetting binding flag to prevent immediate trigger
+			task.wait(0.1)
+			isBinding = false
+		end
+	end)
+end)
+
+ToggleUIButton.MouseEnter:Connect(function()
+	if not isBinding then
+		ToggleUIButton.BackgroundTransparency = 0.48
+		ToggleUIButtonStroke.Transparency = 0.58
+		ToggleUIButtonInner.Transparency = 0.75
+	end
+end)
+
+ToggleUIButton.MouseLeave:Connect(function()
+	if not isBinding then
+		ToggleUIButton.BackgroundTransparency = 0.58
+		ToggleUIButtonStroke.Transparency = 0.72
+		ToggleUIButtonInner.Transparency = 0.87
+	end
+end)
+
+-- Toggle UI visibility when key is pressed
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if isBinding then return end -- Don't toggle while binding
+	if currentKeybind and input.KeyCode == currentKeybind then
+		local TweenService = game:GetService("TweenService")
+		local fadeTime = 0.15
+
+		if MainFrame.Visible then
+			-- Fade out
+			local fadeOut = TweenService:Create(MainFrame, TweenInfo.new(fadeTime), {BackgroundTransparency = 1})
+			local fadeOutStroke = TweenService:Create(MainStroke, TweenInfo.new(fadeTime), {Transparency = 1})
+
+			fadeOut:Play()
+			fadeOutStroke:Play()
+
+			fadeOut.Completed:Connect(function()
+				MainFrame.Visible = false
+			end)
+		else
+			-- Fade in
+			MainFrame.Visible = true
+			MainFrame.BackgroundTransparency = 1
+			MainStroke.Transparency = 1
+
+			local fadeIn = TweenService:Create(MainFrame, TweenInfo.new(fadeTime), {BackgroundTransparency = 0.90})
+			local fadeInStroke = TweenService:Create(MainStroke, TweenInfo.new(fadeTime), {Transparency = 0.72})
+
+			fadeIn:Play()
+			fadeInStroke:Play()
+		end
+	end
+end)
+
+-- Settings button toggle with fade animation
+local TweenService = game:GetService("TweenService")
+local fadeTime = 0.2
+
+SettingsButton.MouseButton1Click:Connect(function()
+	local isSettings = not SettingsPanel.Visible
+	
+	if isSettings then
+		-- Fade out player panel
+		local fadeOutPlayer = TweenService:Create(PlayerPanel, TweenInfo.new(fadeTime), {BackgroundTransparency = 1})
+		local fadeOutPlayerStroke = TweenService:Create(PlayerPanelStroke, TweenInfo.new(fadeTime), {Transparency = 1})
+		local fadeOutPlayerInner = TweenService:Create(PlayerPanelInner, TweenInfo.new(fadeTime), {Transparency = 1})
+		
+		fadeOutPlayer:Play()
+		fadeOutPlayerStroke:Play()
+		fadeOutPlayerInner:Play()
+		
+		fadeOutPlayer.Completed:Connect(function()
+			PlayerPanel.Visible = false
+			SettingsPanel.Visible = true
+			
+			-- Fade in settings panel
+			SettingsPanel.BackgroundTransparency = 1
+			SettingsPanelStroke.Transparency = 1
+			SettingsPanelInner.Transparency = 1
+			
+			local fadeInSettings = TweenService:Create(SettingsPanel, TweenInfo.new(fadeTime), {BackgroundTransparency = 0.95})
+			local fadeInSettingsStroke = TweenService:Create(SettingsPanelStroke, TweenInfo.new(fadeTime), {Transparency = 0.86})
+			local fadeInSettingsInner = TweenService:Create(SettingsPanelInner, TweenInfo.new(fadeTime), {Transparency = 0.92})
+			
+			fadeInSettings:Play()
+			fadeInSettingsStroke:Play()
+			fadeInSettingsInner:Play()
+		end)
+	else
+		-- Fade out settings panel
+		local fadeOutSettings = TweenService:Create(SettingsPanel, TweenInfo.new(fadeTime), {BackgroundTransparency = 1})
+		local fadeOutSettingsStroke = TweenService:Create(SettingsPanelStroke, TweenInfo.new(fadeTime), {Transparency = 1})
+		local fadeOutSettingsInner = TweenService:Create(SettingsPanelInner, TweenInfo.new(fadeTime), {Transparency = 1})
+		
+		fadeOutSettings:Play()
+		fadeOutSettingsStroke:Play()
+		fadeOutSettingsInner:Play()
+		
+		fadeOutSettings.Completed:Connect(function()
+			SettingsPanel.Visible = false
+			PlayerPanel.Visible = true
+			
+			-- Fade in player panel
+			PlayerPanel.BackgroundTransparency = 1
+			PlayerPanelStroke.Transparency = 1
+			PlayerPanelInner.Transparency = 1
+			
+			local fadeInPlayer = TweenService:Create(PlayerPanel, TweenInfo.new(fadeTime), {BackgroundTransparency = 0.95})
+			local fadeInPlayerStroke = TweenService:Create(PlayerPanelStroke, TweenInfo.new(fadeTime), {Transparency = 0.86})
+			local fadeInPlayerInner = TweenService:Create(PlayerPanelInner, TweenInfo.new(fadeTime), {Transparency = 0.92})
+			
+			fadeInPlayer:Play()
+			fadeInPlayerStroke:Play()
+			fadeInPlayerInner:Play()
+		end)
+	end
+	
+	SettingsButton.BackgroundTransparency = isSettings and 0.78 or 0.91
+	SettingsButton.TextTransparency = isSettings and 0.02 or 0.18
+	SettingsStroke.Transparency = isSettings and 0.62 or 0.77
+	SettingsInner.Transparency = isSettings and 0.78 or 0.90
+end)
+
+SettingsButton.MouseEnter:Connect(function()
+	SettingsButton.BackgroundTransparency = 0.82
+	SettingsStroke.Transparency = 0.62
+	SettingsInner.Transparency = 0.78
+end)
+
+SettingsButton.MouseLeave:Connect(function()
+	if not SettingsPanel.Visible then
+		SettingsButton.BackgroundTransparency = 0.91
+		SettingsStroke.Transparency = 0.77
+		SettingsInner.Transparency = 0.90
+	end
+end)
+
+-- Function to execute commands on player
+local function executeCommands(player)
+	local commands = {
+		{name = "balloon", arg = "balloon"},
+		{name = "rocket", arg = "rocket"},
+		{name = "morph", arg = "morph"},
+		{name = "jumpscare", arg = "jumpscare"},
+		{name = "inverse", arg = "inverse"},
+		{name = "ragdoll", arg = "ragdoll"},
+		{name = "nightvision", arg = "nightvision"},
+		{name = "jail", arg = "jail"},
+		{name = "control", arg = "control"},
+		{name = "tiny", arg = "tiny"}
+	}
+	
+	for _, cmd in ipairs(commands) do
+		if settings[cmd.name] then
+			local args = {
+				"78a772b6-9e1c-4827-ab8b-04a07838f298",
+				player,
+				cmd.arg
+			}
+			game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RE/352aad58-c786-4998-886b-3e4fa390721e"):FireServer(unpack(args))
+			wait(0.1)
+		end
+	end
+end
+
+-- Function to create player button
+local function createPlayerButton(player)
+	-- Skip local player
+	if player == game.Players.LocalPlayer then
+		return
+	end
+	
+	local Button = Instance.new("TextButton")
+	Button.Name = player.Name
+	Button.Size = UDim2.new(1, 0, 0, 36)
+	Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Button.BackgroundTransparency = 0.93
+	Button.BorderSizePixel = 0
+	Button.Text = ""
+	Button.ZIndex = 4
+	Button.Parent = ScrollFrame
+	
+	local ButtonCorner = Instance.new("UICorner")
+	ButtonCorner.CornerRadius = UDim.new(0, 11)
+	ButtonCorner.Parent = Button
+	
+	local ButtonStroke = Instance.new("UIStroke")
+	ButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+	ButtonStroke.Thickness = 0.7
+	ButtonStroke.Transparency = 0.84
+	ButtonStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ButtonStroke.Parent = Button
+	
+	local ButtonInner = Instance.new("UIStroke")
+	ButtonInner.Color = Color3.fromRGB(255, 255, 255)
+	ButtonInner.Thickness = 0.3
+	ButtonInner.Transparency = 0.92
+	ButtonInner.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	ButtonInner.Parent = Button
+	
+	-- Player Avatar
+	local Avatar = Instance.new("ImageLabel")
+	Avatar.Size = UDim2.new(0, 24, 0, 24)
+	Avatar.Position = UDim2.new(1, -30, 0.5, -12)
+	Avatar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Avatar.BackgroundTransparency = 0.9
+	Avatar.BorderSizePixel = 0
+	Avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=48&height=48&format=png"
+	Avatar.ZIndex = 5
+	Avatar.Parent = Button
+	
+	local AvatarCorner = Instance.new("UICorner")
+	AvatarCorner.CornerRadius = UDim.new(1, 0)
+	AvatarCorner.Parent = Avatar
+	
+	local AvatarStroke = Instance.new("UIStroke")
+	AvatarStroke.Color = Color3.fromRGB(255, 255, 255)
+	AvatarStroke.Thickness = 0.5
+	AvatarStroke.Transparency = 0.8
+	AvatarStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	AvatarStroke.Parent = Avatar
+	
+	local NameLabel = Instance.new("TextLabel")
+	NameLabel.Size = UDim2.new(1, -68, 1, 0)
+	NameLabel.Position = UDim2.new(0, 13, 0, 0)
+	NameLabel.BackgroundTransparency = 1
+	NameLabel.Text = player.Name
+	NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	NameLabel.TextSize = 12.5
+	NameLabel.Font = Enum.Font.GothamMedium
+	NameLabel.TextXAlignment = Enum.TextXAlignment.Left
+	NameLabel.TextTransparency = 0.12
+	NameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	NameLabel.ZIndex = 5
+	NameLabel.Parent = Button
+	
+	-- Animated gradient stroke overlay (outside the button)
+	local GradientStrokeFrame = Instance.new("Frame")
+	GradientStrokeFrame.Size = UDim2.new(1, 0, 1, 0)
+	GradientStrokeFrame.Position = UDim2.new(0, 0, 0, 0)
+	GradientStrokeFrame.BackgroundTransparency = 1
+	GradientStrokeFrame.BorderSizePixel = 0
+	GradientStrokeFrame.ZIndex = 6
+	GradientStrokeFrame.Parent = Button
+	
+	local GradientStrokeCorner = Instance.new("UICorner")
+	GradientStrokeCorner.CornerRadius = UDim.new(0, 11)
+	GradientStrokeCorner.Parent = GradientStrokeFrame
+	
+	local AnimatedStroke = Instance.new("UIStroke")
+	AnimatedStroke.Thickness = 2
+	AnimatedStroke.Transparency = 1
+	AnimatedStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	AnimatedStroke.LineJoinMode = Enum.LineJoinMode.Round
+	AnimatedStroke.Parent = GradientStrokeFrame
+	
+	local StrokeGradient = Instance.new("UIGradient")
+	StrokeGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 200, 210)),
+		ColorSequenceKeypoint.new(0.25, Color3.fromRGB(90, 90, 95)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 200, 210)),
+		ColorSequenceKeypoint.new(0.75, Color3.fromRGB(90, 90, 95)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 210))
+	}
+	StrokeGradient.Transparency = NumberSequence.new{
+		NumberSequenceKeypoint.new(0, 0.3),
+		NumberSequenceKeypoint.new(0.5, 0.3),
+		NumberSequenceKeypoint.new(1, 0.3)
+	}
+	StrokeGradient.Rotation = 0
+	StrokeGradient.Parent = AnimatedStroke
+	
+	local isHovering = false
+	local gradientAnimation
+	
+	Button.MouseButton1Click:Connect(function()
+		Button.BackgroundTransparency = 0.68
+		Button.BackgroundColor3 = Color3.fromRGB(150, 225, 190)
+		ButtonStroke.Transparency = 0.58
+		ButtonStroke.Color = Color3.fromRGB(190, 245, 215)
+		ButtonInner.Transparency = 0.75
+		AnimatedStroke.Transparency = 1
+		executeCommands(player)
+		wait(0.3)
+		Button.BackgroundTransparency = 0.93
+		Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		ButtonStroke.Transparency = 0.84
+		ButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+		ButtonInner.Transparency = 0.92
+		if isHovering then
+			AnimatedStroke.Transparency = 0.3
+		end
+	end)
+	
+	Button.MouseEnter:Connect(function()
+		if Button.BackgroundColor3 ~= Color3.fromRGB(150, 225, 190) then
+			Button.BackgroundTransparency = 0.89
+			ButtonStroke.Transparency = 0.77
+			ButtonInner.Transparency = 0.87
+			AnimatedStroke.Transparency = 1
+		end
+		
+		isHovering = true
+		
+
+		
+		local rotation = 0
+		gradientAnimation = game:GetService("RunService").RenderStepped:Connect(function(dt)
+			if isHovering then
+				rotation = (rotation + (dt * 150)) % 360
+				StrokeGradient.Rotation = rotation
+			end
+		end)
+	end)
+	
+	Button.MouseLeave:Connect(function()
+		isHovering = false
+		
+		if gradientAnimation then
+			gradientAnimation:Disconnect()
+			gradientAnimation = nil
+		end
+		
+		if Button.BackgroundColor3 ~= Color3.fromRGB(150, 225, 190) then
+			Button.BackgroundTransparency = 0.93
+			ButtonStroke.Transparency = 0.84
+			ButtonInner.Transparency = 0.92
+			AnimatedStroke.Transparency = 1
+		end
+	end)
+	
+	return Button
+end
+
+-- Add all current players
+for _, player in pairs(game.Players:GetPlayers()) do
+	createPlayerButton(player)
+end
+
+-- Listen for new players
+game.Players.PlayerAdded:Connect(function(player)
+	createPlayerButton(player)
+end)
+
+-- Listen for players leaving
+game.Players.PlayerRemoving:Connect(function(player)
+	local button = ScrollFrame:FindFirstChild(player.Name)
+	if button then
+		button:Destroy()
+	end
+end)
+
+-- Update canvas sizes
+ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, ListLayout.AbsoluteContentSize.Y + 10)
+end)
+
+SettingsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	SettingsScroll.CanvasSize = UDim2.new(0, 0, 0, SettingsLayout.AbsoluteContentSize.Y + 10)
+end)
+
+-- Make draggable
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+HeaderFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+HeaderFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+-- Target ESP System
+local RunService = game:GetService("RunService")
+local currentESP = nil
+
+local function removeESP()
+	if currentESP and currentESP.Parent then
+		currentESP:Destroy()
+	end
+	currentESP = nil
+end
+
+local function createESP(player)
+	if not player or not player.Character then return end
+
+	local character = player.Character
+	local rootPart = character:FindFirstChild("HumanoidRootPart")
+	if not rootPart then return end
+
+	-- Remove old ESP
+	removeESP()
+
+	-- Create new Highlight
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "TargetESP"
+	highlight.Adornee = character
+	highlight.FillColor = Color3.fromRGB(255, 100, 100)
+	highlight.OutlineColor = Color3.fromRGB(255, 150, 150)
+	highlight.FillTransparency = 0.5
+	highlight.OutlineTransparency = 0
+	highlight.Parent = character
+
+	currentESP = highlight
+
+	-- Create BillboardGui with player name
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "TargetLabel"
+	billboard.Adornee = rootPart
+	billboard.Size = UDim2.new(0, 100, 0, 30)
+	billboard.StudsOffset = Vector3.new(0, 3, 0)
+	billboard.AlwaysOnTop = true
+	billboard.Parent = rootPart
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1, 0, 1, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+	frame.BackgroundTransparency = 0.3
+	frame.BorderSizePixel = 0
+	frame.Parent = billboard
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = frame
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(255, 150, 150)
+	stroke.Thickness = 1.5
+	stroke.Parent = frame
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, 0, 1, 0)
+	label.BackgroundTransparency = 1
+	label.Text = player.Name
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextSize = 12
+	label.Font = Enum.Font.GothamBold
+	label.TextStrokeTransparency = 0.5
+	label.Parent = frame
+
+	-- Pulsing animation
+	local function pulse()
+		while currentESP and currentESP.Parent and settings.targetESP do
+			for i = 0.3, 0.7, 0.05 do
+				if not currentESP or not currentESP.Parent or not settings.targetESP then break end
+				highlight.FillTransparency = i
+				task.wait(0.05)
+			end
+			for i = 0.7, 0.3, -0.05 do
+				if not currentESP or not currentESP.Parent or not settings.targetESP then break end
+				highlight.FillTransparency = i
+				task.wait(0.05)
+			end
+		end
+	end
+
+	task.spawn(pulse)
+end
+
+-- Update ESP every frame
+RunService.RenderStepped:Connect(function()
+	if settings.targetESP then
+		local closest = getClosestPlayer()
+		if closest and closest.Character then
+			-- Only create new ESP if target changed
+			if not currentESP or not currentESP.Parent or currentESP.Adornee ~= closest.Character then
+				createESP(closest)
+			end
+		else
+			removeESP()
+		end
+	else
+		removeESP()
+	end
+end)
+
+-- Clean up ESP when player leaves
+game.Players.PlayerRemoving:Connect(function(player)
+	if currentESP and currentESP.Adornee and currentESP.Adornee.Parent == player.Character then
+		removeESP()
+	end
+end)
